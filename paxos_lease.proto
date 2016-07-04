@@ -1,0 +1,56 @@
+import "poppy/rpc_option.proto";
+import "poppy/rpc_message.proto";
+
+// There is no need to store acceptedValue , only need to persisit the acceptedProposal 
+
+message PrepareRequest
+{
+    required uint64 proposal_id = 1;
+    required string candidate_id = 2;// we simply use ip port as the node_id
+}
+
+message PrepareResponse
+{
+    required uint64 proposal_id = 1;
+    optional uint64 accepted_proposal_id = 2;
+    optional string accepted_leaseowner = 3;
+    optional uint64 accepted_duration = 4;
+    optional uint64 accepted_expiretime = 5;
+    required bool accepted = 6;
+}
+
+message ProposeRequest
+{
+    required uint64 proposal_id = 1;
+    required uint64 expire_time = 2;   
+    required uint64 duration = 3;
+    required string candidate_id = 4;
+}
+
+message ProposeResponse
+{
+    required uint64 proposal_id = 1;
+    required bool vote_for_granted = 2;
+}
+
+message LearnRequest
+{
+    required uint64 proposal_id = 1;
+    required string leader_id = 2;
+    required uint64 duration = 3;
+    required uint64 expire_time = 4;
+}
+
+message LeaderResponse
+{
+    required string leader_id = 1;
+}
+
+
+service PAXOSLeaseServer {
+	option (poppy.service_timeout) = 500;
+    rpc prepare(PrepareRequest) returns(PrepareResponse);
+    rpc propose(ProposeRequest) returns(ProposeResponse);
+    rpc learn(LearnRequest) returns(poppy.EmptyResponse);
+    rpc master(poppy.EmptyRequest) returns(LeaderResponse); 
+}
